@@ -151,11 +151,36 @@ class Main {
             // {a=[a, a], b=[b], c=[c], d=[d], e=[e]}
             val re1 = list11.groupBy { it }
             println(re1)
-            
+
+
+            // 0 1 2
+            val array = intArrayOf(1,2,3)
+            array.forEach { println(it) }
+
+            // 0 0 0
+            val intArray1 = IntArray(3)
+            intArray1.forEach { println(it) }
+
+            // 0 5 10 15 ...
+            val intArray2 = IntArray(5) {it * 5}
+            intArray2.forEach { println(it) }
+
+            // casts
+            val i = 20
+            val l = i.toLong()
+            val building: Building = House()
+            val house = building as House
+
+            // elvis
+            val test = if (i < 10) " Small" else null
+            val hasil = test ?: "equal"
+
+
             // hal 101
-
-
-
         }
     }
 }
+
+
+open class Building
+class House : Building()
