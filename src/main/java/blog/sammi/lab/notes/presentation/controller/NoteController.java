@@ -1,8 +1,9 @@
 package blog.sammi.lab.notes.presentation.controller;
 
+import blog.sammi.lab.notes.application.dto.*;
 import blog.sammi.lab.notes.application.usecase.NoteUseCase;
 import blog.sammi.lab.notes.presentation.dto.ApiResponse;
-import blog.sammi.lab.notes.presentation.dto.CreateNoteRequest;
+import blog.sammi.lab.notes.presentation.dto.CreateNoteRequestDto;
 import blog.sammi.lab.notes.presentation.dto.Meta;
 import blog.sammi.lab.notes.presentation.dto.NoteDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,11 +45,20 @@ public class NoteController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Category or tag not found")
     })
     public ResponseEntity<ApiResponse<NoteDto>> createNote(
-            @Valid @RequestBody CreateNoteRequest request,
+            @Valid @RequestBody CreateNoteRequestDto requestDto,
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        NoteDto createdNote = noteUseCase.createNote(request, userId);
+        
+        CreateNoteRequest request = CreateNoteRequest.builder()
+                .title(requestDto.title())
+                .content(requestDto.content())
+                .categoryId(requestDto.categoryId())
+                .tagIds(requestDto.tagIds())
+                .userId(userId)
+                .build();
+        
+        NoteDto createdNote = noteUseCase.createNote(request);
         
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Catatan berhasil dibuat", createdNote));
@@ -71,7 +81,18 @@ public class NoteController {
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        Page<NoteDto> notes = noteUseCase.getNotes(userId, search, categoryId, tagIds, startDate, endDate, pageable);
+        
+        GetNotesRequest request = GetNotesRequest.builder()
+                .userId(userId)
+                .search(search)
+                .categoryId(categoryId)
+                .tagIds(tagIds)
+                .startDate(startDate)
+                .endDate(endDate)
+                .pageable(pageable)
+                .build();
+        
+        Page<NoteDto> notes = noteUseCase.getNotes(request);
         
         return ResponseEntity.ok(ApiResponse.successWithMeta(
                 notes.getContent(),
@@ -91,7 +112,14 @@ public class NoteController {
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        Page<NoteDto> notes = noteUseCase.searchNotes(userId, query, pageable);
+        
+        SearchNotesRequest request = SearchNotesRequest.builder()
+                .userId(userId)
+                .query(query)
+                .pageable(pageable)
+                .build();
+        
+        Page<NoteDto> notes = noteUseCase.searchNotes(request);
         
         return ResponseEntity.ok(ApiResponse.successWithMeta(
                 notes.getContent(),
@@ -111,7 +139,14 @@ public class NoteController {
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        Page<NoteDto> notes = noteUseCase.getNotesByCategory(userId, categoryId, pageable);
+        
+        GetNotesByRequest request = GetNotesByRequest.builder()
+                .userId(userId)
+                .categoryId(categoryId)
+                .pageable(pageable)
+                .build();
+        
+        Page<NoteDto> notes = noteUseCase.getNotesByCategory(request);
         
         return ResponseEntity.ok(ApiResponse.successWithMeta(
                 notes.getContent(),
@@ -131,7 +166,14 @@ public class NoteController {
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        Page<NoteDto> notes = noteUseCase.getNotesByTag(userId, tagId, pageable);
+        
+        GetNotesByRequest request = GetNotesByRequest.builder()
+                .userId(userId)
+                .tagId(tagId)
+                .pageable(pageable)
+                .build();
+        
+        Page<NoteDto> notes = noteUseCase.getNotesByTag(request);
         
         return ResponseEntity.ok(ApiResponse.successWithMeta(
                 notes.getContent(),
@@ -150,7 +192,13 @@ public class NoteController {
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        NoteDto note = noteUseCase.getNoteById(noteId, userId);
+        
+        GetCategoryByIdRequest request = GetCategoryByIdRequest.builder()
+                .categoryId(noteId)
+                .userId(userId)
+                .build();
+        
+        NoteDto note = noteUseCase.getNoteById(request);
         
         return ResponseEntity.ok(ApiResponse.success("Catatan ditemukan", note));
     }
@@ -164,11 +212,21 @@ public class NoteController {
     })
     public ResponseEntity<ApiResponse<NoteDto>> updateNote(
             @Parameter(description = "Note ID") @PathVariable UUID noteId,
-            @Valid @RequestBody CreateNoteRequest request,
+            @Valid @RequestBody CreateNoteRequestDto requestDto,
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        NoteDto updatedNote = noteUseCase.updateNote(noteId, request, userId);
+        
+        UpdateNoteRequest request = UpdateNoteRequest.builder()
+                .noteId(noteId)
+                .userId(userId)
+                .title(requestDto.title())
+                .content(requestDto.content())
+                .categoryId(requestDto.categoryId())
+                .tagIds(requestDto.tagIds())
+                .build();
+        
+        NoteDto updatedNote = noteUseCase.updateNote(request);
         
         return ResponseEntity.ok(ApiResponse.success("Catatan berhasil diperbarui", updatedNote));
     }
@@ -184,7 +242,13 @@ public class NoteController {
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        noteUseCase.deleteNote(noteId, userId);
+        
+        DeleteCategoryRequest request = DeleteCategoryRequest.builder()
+                .categoryId(noteId)
+                .userId(userId)
+                .build();
+        
+        noteUseCase.deleteNote(request);
         
         return ResponseEntity.ok(ApiResponse.success("Catatan berhasil dihapus"));
     }

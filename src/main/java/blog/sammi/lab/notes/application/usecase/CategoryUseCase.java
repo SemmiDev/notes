@@ -32,11 +32,10 @@ public class CategoryUseCase {
             throw new BusinessException(ErrorCode.DUPLICATE_RESOURCE, "Kategori dengan nama tersebut sudah ada");
         }
         
-        Category category = Category.builder()
-                .name(request.name())
-                .description(request.description())
-                .user(user)
-                .build();
+        Category category = new Category();
+        category.setName(request.name());
+        category.setDescription(request.description());
+        category.setUser(user);
         
         Category savedCategory = categoryRepository.save(category);
         return categoryMapper.toDto(savedCategory);

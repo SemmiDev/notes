@@ -1,5 +1,6 @@
 package blog.sammi.lab.notes.presentation.controller;
 
+import blog.sammi.lab.notes.application.dto.*;
 import blog.sammi.lab.notes.application.usecase.TagUseCase;
 import blog.sammi.lab.notes.presentation.dto.ApiResponse;
 import blog.sammi.lab.notes.presentation.dto.Meta;
@@ -45,7 +46,14 @@ public class TagController {
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        TagDto createdTag = tagUseCase.createTag(tagDto, userId);
+        
+        CreateTagRequest request = CreateTagRequest.builder()
+                .name(tagDto.name())
+                .color(tagDto.color())
+                .userId(userId)
+                .build();
+        
+        TagDto createdTag = tagUseCase.createTag(request);
         
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Tag berhasil dibuat", createdTag));
@@ -63,7 +71,15 @@ public class TagController {
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        Page<TagDto> tags = tagUseCase.getTags(userId, search, color, pageable);
+        
+        GetTagsRequest request = GetTagsRequest.builder()
+                .userId(userId)
+                .search(search)
+                .color(color)
+                .pageable(pageable)
+                .build();
+        
+        Page<TagDto> tags = tagUseCase.getTags(request);
         
         return ResponseEntity.ok(ApiResponse.successWithMeta(
                 tags.getContent(),
@@ -80,7 +96,12 @@ public class TagController {
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        List<TagDto> tags = tagUseCase.getAllUserTags(userId);
+        
+        GetAllUserTagsRequest request = GetAllUserTagsRequest.builder()
+                .userId(userId)
+                .build();
+        
+        List<TagDto> tags = tagUseCase.getAllUserTags(request);
         
         return ResponseEntity.ok(ApiResponse.success("Semua tag berhasil diambil", tags));
     }
@@ -96,7 +117,13 @@ public class TagController {
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        TagDto tag = tagUseCase.getTagById(tagId, userId);
+        
+        GetCategoryByIdRequest request = GetCategoryByIdRequest.builder()
+                .categoryId(tagId)
+                .userId(userId)
+                .build();
+        
+        TagDto tag = tagUseCase.getTagById(request);
         
         return ResponseEntity.ok(ApiResponse.success("Tag ditemukan", tag));
     }
@@ -115,7 +142,15 @@ public class TagController {
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        TagDto updatedTag = tagUseCase.updateTag(tagId, tagDto, userId);
+        
+        UpdateTagRequest request = UpdateTagRequest.builder()
+                .tagId(tagId)
+                .userId(userId)
+                .name(tagDto.name())
+                .color(tagDto.color())
+                .build();
+        
+        TagDto updatedTag = tagUseCase.updateTag(request);
         
         return ResponseEntity.ok(ApiResponse.success("Tag berhasil diperbarui", updatedTag));
     }
@@ -132,7 +167,13 @@ public class TagController {
             @AuthenticationPrincipal UserDetails userDetails) {
         
         UUID userId = UUID.fromString(userDetails.getUsername());
-        tagUseCase.deleteTag(tagId, userId);
+        
+        DeleteCategoryRequest request = DeleteCategoryRequest.builder()
+                .categoryId(tagId)
+                .userId(userId)
+                .build();
+        
+        tagUseCase.deleteTag(request);
         
         return ResponseEntity.ok(ApiResponse.success("Tag berhasil dihapus"));
     }

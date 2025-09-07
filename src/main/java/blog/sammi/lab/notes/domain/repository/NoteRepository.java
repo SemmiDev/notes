@@ -25,34 +25,44 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
     
     Optional<Note> findByIdAndUserId(UUID id, UUID userId);
     
-    // Full-text search using PostgreSQL tsvector
+    // Simple text search using native SQL
     @Query(value = """
         SELECT n.* FROM notes n 
         WHERE n.user_id = :userId 
-        AND n.search_vector @@ to_tsquery('indonesian', :query)
-        ORDER BY ts_rank(n.search_vector, to_tsquery('indonesian', :query)) DESC
+        AND (n.title ILIKE CONCAT('%', :query, '%') OR n.content ILIKE CONCAT('%', :query, '%'))
+        ORDER BY n.updated_at DESC
         """, 
         countQuery = """
         SELECT COUNT(*) FROM notes n 
         WHERE n.user_id = :userId 
-        AND n.search_vector @@ to_tsquery('indonesian', :query)
+        AND (n.title ILIKE CONCAT('%', :query, '%') OR n.content ILIKE CONCAT('%', :query, '%'))
         """,
         nativeQuery = true)
     Page<Note> fullTextSearch(@Param("userId") UUID userId, @Param("query") String query, Pageable pageable);
     
-    // Advanced search with filters
-    @Query("""
-        SELECT n FROM Note n 
-        WHERE n.user.id = :userId
-        AND n.searchVector @@ function('to_tsquery', 'indonesian', :query)
-        AND (:categoryId IS NULL OR n.category.id = :categoryId)
-        AND (:#{#tagIds == null || #tagIds.isEmpty()} = true OR EXISTS (
-            SELECT t FROM n.tags t WHERE t.id IN :tagIds
-        ))
-        AND (:startDate IS NULL OR n.createdAt >= :startDate)
-        AND (:endDate IS NULL OR n.createdAt <= :endDate)
-        ORDER BY function('ts_rank', n.searchVector, function('to_tsquery', 'indonesian', :query)) DESC
-        """)
+    // Advanced search with filters using native SQL
+    @Query(value = """
+        SELECT DISTINCT n.* FROM notes n 
+        LEFT JOIN note_tags nt ON n.id = nt.note_id
+        WHERE n.user_id = :userId
+        AND (:query IS NULL OR n.title ILIKE CONCAT('%', :query, '%') OR n.content ILIKE CONCAT('%', :query, '%'))
+        AND (:categoryId IS NULL OR n.category_id = :categoryId)
+        AND (:#{#tagIds == null || #tagIds.isEmpty()} = true OR nt.tag_id IN :tagIds)
+        AND (:startDate IS NULL OR n.created_at >= :startDate)
+        AND (:endDate IS NULL OR n.created_at <= :endDate)
+        ORDER BY n.updated_at DESC, n.created_at DESC
+        """,
+        countQuery = """
+        SELECT COUNT(DISTINCT n.id) FROM notes n 
+        LEFT JOIN note_tags nt ON n.id = nt.note_id
+        WHERE n.user_id = :userId
+        AND (:query IS NULL OR n.title ILIKE CONCAT('%', :query, '%') OR n.content ILIKE CONCAT('%', :query, '%'))
+        AND (:categoryId IS NULL OR n.category_id = :categoryId)
+        AND (:#{#tagIds == null || #tagIds.isEmpty()} = true OR nt.tag_id IN :tagIds)
+        AND (:startDate IS NULL OR n.created_at >= :startDate)
+        AND (:endDate IS NULL OR n.created_at <= :endDate)
+        """,
+        nativeQuery = true)
     Page<Note> searchNotes(
         @Param("userId") UUID userId,
         @Param("query") String query,
@@ -63,14 +73,13 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
         Pageable pageable
     );
     
-    // Filter without search
+    // Filter without search using JPQL
     @Query("""
-        SELECT n FROM Note n 
+        SELECT DISTINCT n FROM Note n 
+        LEFT JOIN n.tags t
         WHERE n.user.id = :userId
         AND (:categoryId IS NULL OR n.category.id = :categoryId)
-        AND (:#{#tagIds == null || #tagIds.isEmpty()} = true OR EXISTS (
-            SELECT t FROM n.tags t WHERE t.id IN :tagIds
-        ))
+        AND (:#{#tagIds == null || #tagIds.isEmpty()} = true OR t.id IN :tagIds)
         AND (:startDate IS NULL OR n.createdAt >= :startDate)
         AND (:endDate IS NULL OR n.createdAt <= :endDate)
         ORDER BY n.updatedAt DESC, n.createdAt DESC

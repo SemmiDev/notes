@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Schema(description = "Create note request")
-public record CreateNoteRequest(
+public record CreateNoteRequestDto(
     @NotBlank(message = "Judul catatan tidak boleh kosong")
     @Size(min = 1, max = 255, message = "Judul harus antara 1-255 karakter")
     @Schema(description = "Note title", example = "My Important Note", required = true)

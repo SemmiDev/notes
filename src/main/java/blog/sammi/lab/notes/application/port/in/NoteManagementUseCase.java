@@ -1,6 +1,6 @@
 package blog.sammi.lab.notes.application.port.in;
 
-import blog.sammi.lab.notes.application.dto.NoteDto;
+import blog.sammi.lab.notes.presentation.dto.NoteDto;
 
 import java.util.List;
 import java.util.UUID;
