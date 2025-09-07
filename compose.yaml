@@ -1,0 +1,96 @@
+services:
+  app:
+    container_name: notes_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_USERNAME=${DATABASE_USER:-notes}
+      - DB_PASSWORD=${DATABASE_PASSWORD:-notes}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${DATABASE_DB:-notes}
+      - SPRING_REDIS_HOST=valkey
+      - SPRING_REDIS_PORT=6379
+      - MEMCACHED_HOST=memcached
+      - MEMCACHED_PORT=11211
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+      memcached:
+        condition: service_started
+    networks:
+      - app_network
+    volumes:
+      - app_logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  db:
+    container_name: notes_db
+    image: postgres:17-alpine
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-notes}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-notes}
+      POSTGRES_DB: ${DATABASE_DB:-notes}
+    volumes:
+      - notes_db_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-notes} -d ${DATABASE_DB:-notes}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  valkey:
+    container_name: notes_valkey
+    image: valkey/valkey:7.2-alpine
+    ports:
+      - '6379:6379'
+    volumes:
+      - valkey_data:/data
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  memcached:
+    container_name: notes_memcached
+    image: memcached:1.6-alpine
+    ports:
+      - '11211:11211'
+    command: memcached -m 64
+    networks:
+      - app_network
+    restart: unless-stopped
+
+volumes:
+  notes_db_data:
+    name: notes_db_data
+  app_logs:
+    name: notes_app_logs
+  valkey_data:
+    name: notes_valkey_data
+
+networks:
+  app_network:
+    driver: bridge

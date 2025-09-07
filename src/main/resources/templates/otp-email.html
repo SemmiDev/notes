@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Account - Notes App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 py-12">
+    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
+            <div class="flex items-center justify-center">
+                <div class="bg-white rounded-full p-3">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-white text-2xl font-bold text-center mt-4">Verify Your Account</h1>
+            <p class="text-blue-100 text-center mt-2">Complete your Notes App registration</p>
+        </div>
+
+        <!-- Content -->
+        <div class="px-8 py-8">
+            <div class="text-center mb-8">
+                <h2 class="text-gray-800 text-xl font-semibold mb-3">Welcome to Notes App!</h2>
+                <p class="text-gray-600 leading-relaxed">
+                    Thank you for signing up. To complete your registration and secure your account, 
+                    please verify your email address using the code below.
+                </p>
+            </div>
+
+            <!-- OTP Code -->
+            <div class="bg-gray-50 rounded-xl p-6 mb-8 border-2 border-dashed border-gray-200">
+                <p class="text-gray-700 text-sm font-medium text-center mb-3">Your verification code:</p>
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <p class="text-3xl font-bold text-center text-gray-800 tracking-widest font-mono" th:text="${otpCode}">123456</p>
+                </div>
+                <p class="text-gray-500 text-xs text-center mt-3">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    This code expires in 10 minutes
+                </p>
+            </div>
+
+            <!-- Instructions -->
+            <div class="bg-blue-50 rounded-lg p-4 mb-6 border border-blue-200">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-blue-800 font-medium text-sm">How to verify:</p>
+                        <p class="text-blue-700 text-sm mt-1">
+                            Enter this 6-digit code in the verification page to activate your account.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Notice -->
+            <div class="bg-amber-50 rounded-lg p-4 border border-amber-200">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-amber-800 font-medium text-sm">Security Notice</p>
+                        <p class="text-amber-700 text-sm mt-1">
+                            Never share this code with anyone. Our team will never ask for your verification code.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 px-8 py-6 border-t border-gray-200">
+            <div class="text-center">
+                <p class="text-gray-600 text-sm mb-3">
+                    Didn't request this email? You can safely ignore it.
+                </p>
+                <div class="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                    <span>© 2025 Notes App</span>
+                    <span>•</span>
+                    <a href="#" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+                    <span>•</span>
+                    <a href="#" class="hover:text-blue-600 transition-colors">Support</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Responsive Adjustments -->
+    <style>
+        @media (max-width: 480px) {
+            .max-w-md { margin: 0 16px; }
+        }
+    </style>
+</body>
+</html>

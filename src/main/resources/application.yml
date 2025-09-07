@@ -1,0 +1,77 @@
+spring:
+  application:
+    name: notes
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/notes
+    username: ${DB_USERNAME:notes}
+    password: ${DB_PASSWORD:notes}
+
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+  flyway:
+    enabled: true
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  jwt:
+    secret: "8)[Gv9BrJ@5c&#$D=LJe,mhwMPRRw/0K"
+    expiration-ms: 3600000
+  email:
+    mock: true  # Set to false when Gmail is configured
+
+memcached:
+  host: ${MEMCACHED_HOST:localhost}
+  port: ${MEMCACHED_PORT:11211}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+  show-actuator: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: when-authorized
+    loggers:
+      enabled: true
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: INFO
+    blog.sammi.lab.notes: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: DEBUG
+    org.springframework.web: INFO

@@ -1,0 +1,200 @@
+### Notes Application API Testing
+### Base URL
+@baseUrl = http://localhost:8080
+@contentType = application/json
+
+### Variables (Update these with actual values)
+@accessToken = your-jwt-token-here
+@refreshToken = your-refresh-token-here
+@email = sammidev4@gmail.com
+@otpCode = 123456
+
+###
+### Health Check
+GET {{baseUrl}}/actuator/health
+
+###
+### API Documentation
+GET {{baseUrl}}/swagger-ui.html
+
+###
+### 1. User Registration
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "sammidev",
+  "email": "{{email}}",
+  "password": "password123"
+}
+
+###
+### 2. Verify OTP
+POST {{baseUrl}}/api/auth/verify-otp?email={{email}}&otpCode={{otpCode}}
+
+###
+### 3. Resend OTP
+POST {{baseUrl}}/api/auth/resend-otp?email={{email}}
+
+###
+### 4. User Login
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username_or_email": "sammidev4@gmail.com",
+  "password": "password123"
+}
+
+> {%
+client.global.set("accessToken", response.body.data.accessToken);
+client.global.set("refreshToken", response.body.data.refreshToken);
+%}
+
+###
+### 5. Refresh Token
+POST {{baseUrl}}/api/auth/refresh-token?refreshToken={{refreshToken}}
+
+###
+### 6. Forgot Password
+POST {{baseUrl}}/api/auth/forgot-password?email={{email}}
+
+###
+### 7. Reset Password
+POST {{baseUrl}}/api/auth/reset-password?email={{email}}&otpCode={{otpCode}}&newPassword=newpassword123
+
+###
+### Protected Endpoints (Require Authentication)
+### Add Authorization header for protected routes
+
+###
+### Get User Profile (Example protected endpoint)
+GET {{baseUrl}}/api/users/profile
+Authorization: Bearer {{accessToken}}
+
+###
+### Create Note (Example)
+POST {{baseUrl}}/api/notes
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "title": "My First Note",
+  "content": "This is the content of my first note in Indonesian. Ini adalah catatan pertama saya.",
+  "categoryId": null,
+  "tagIds": []
+}
+
+###
+### Search Notes (Example)
+GET {{baseUrl}}/api/notes/search?query=catatan&page=0&size=10
+Authorization: Bearer {{accessToken}}
+
+###
+### Get All Notes with Pagination
+GET {{baseUrl}}/api/notes?page=0&size=10&sort=createdAt,desc
+Authorization: Bearer {{accessToken}}
+
+###
+### Search Notes with Pagination
+GET {{baseUrl}}/api/notes/search?query=catatan&page=0&size=5&sort=title,asc
+Authorization: Bearer {{accessToken}}
+
+###
+### Get Categories with Pagination
+GET {{baseUrl}}/api/categories?page=0&size=20
+Authorization: Bearer {{accessToken}}
+
+###
+### Get Tags with Pagination
+GET {{baseUrl}}/api/tags?page=0&size=15&sort=name,asc
+Authorization: Bearer {{accessToken}}
+
+###
+### Update Note (Example)
+PUT {{baseUrl}}/api/notes/{{noteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "title": "Updated Note Title",
+  "content": "Updated content with Indonesian text. Konten yang telah diperbarui.",
+  "categoryId": null,
+  "tagIds": []
+}
+
+###
+### Delete Note (Example)
+DELETE {{baseUrl}}/api/notes/{{noteId}}
+Authorization: Bearer {{accessToken}}
+
+###
+### Create Category (Example)
+POST {{baseUrl}}/api/categories
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Work",
+  "description": "Work related notes"
+}
+
+###
+### Create Tag (Example)
+POST {{baseUrl}}/api/tags
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Important",
+  "color": "#ff0000"
+}
+
+###
+### Error Testing - Validation Errors
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "",
+  "email": "invalid-email",
+  "password": "123"
+}
+
+###
+### Error Testing - Missing Fields
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": null,
+  "email": null,
+  "password": null
+}
+
+###
+### Error Testing - Duplicate Email (after successful registration)
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser2",
+  "email": "{{email}}",
+  "password": "password123"
+}
+
+###
+### Error Testing - Invalid Token
+GET {{baseUrl}}/api/users/profile
+Authorization: Bearer invalid-token
+
+###
+### Error Testing - Missing Required Field
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "",
+  "email": "invalid-email",
+  "password": "123"
+}
