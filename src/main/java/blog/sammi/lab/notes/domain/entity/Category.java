@@ -13,7 +13,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString(exclude = {"user", "notes"})
-@EqualsAndHashCode(of = "id", callSuper = false)
+@EqualsAndHashCode(callSuper = false)
 public class Category extends Auditable {
     @Column(nullable = false)
     private String name;
